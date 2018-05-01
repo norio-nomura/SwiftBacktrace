@@ -1,0 +1,5 @@
+module CSwiftBacktrace {
+  umbrella "."
+  link "swiftCore"
+  module * { export * }
+}

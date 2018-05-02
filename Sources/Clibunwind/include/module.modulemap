@@ -1,4 +1,4 @@
 module Clibunwind [extern_c] {
-  umbrella "."
+  umbrella header "Clibunwind.h"
   module * { export * }
 }

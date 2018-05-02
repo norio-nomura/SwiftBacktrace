@@ -1,5 +1,4 @@
 module Clibunwind [extern_c] {
   umbrella "."
-  link "unwind"
   module * { export * }
 }

@@ -1,0 +1,45 @@
+aliases:
+  - &steps-for-linux
+    - checkout
+    - run: apt-get update && apt-get install -y libunwind8
+    - run: swift test
+    - run: mkdir -p build/reports/
+    - run: swiftlint lint --strict --reporter junit > build/reports/junit.xml
+    - store_test_results:
+        path: build/reports/
+
+  - &steps-for-linux-without-swiftlint
+    - checkout
+    - run: apt-get update && apt-get install -y libunwind8
+    - run: swift test
+
+version: 2
+jobs:
+  linux_swift_4.0.3:
+    docker:
+      - image: norionomura/swiftlint:swift-4.0.3
+    steps: *steps-for-linux
+
+  linux_swift_4.1:
+    docker:
+      - image: norionomura/swiftlint:swift-4.1
+    steps: *steps-for-linux
+
+  linux_swift_4.2:
+    docker:
+      - image: norionomura/swift:swift-4.2-branch
+    steps: *steps-for-linux-without-swiftlint
+
+  linux_swift_tensorflow:
+    docker:
+      - image: norionomura/swift-tensorflow
+    steps: *steps-for-linux-without-swiftlint
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - linux_swift_4.0.3
+      - linux_swift_4.1
+      - linux_swift_4.2
+      - linux_swift_tensorflow

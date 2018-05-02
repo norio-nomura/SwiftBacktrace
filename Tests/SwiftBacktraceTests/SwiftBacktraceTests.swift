@@ -15,6 +15,6 @@ final class SwiftBacktraceTests: XCTestCase {
     }
 
     static var allTests = [
-        ("test_backtrace", test_backtrace),
+        ("test_backtrace", test_backtrace)
     ]
 }

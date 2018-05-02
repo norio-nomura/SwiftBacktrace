@@ -8,7 +8,7 @@ let package = Package(
     products: [
         .library(
             name: "SwiftBacktrace",
-            targets: ["Clibunwind", "CSwiftBacktrace", "SwiftBacktrace"]),
+            targets: ["Clibunwind", "CSwiftBacktrace", "SwiftBacktrace"])
     ],
     targets: [
         .target(name: "Clibunwind"),
@@ -18,6 +18,6 @@ let package = Package(
             dependencies: ["Clibunwind", "CSwiftBacktrace"]),
         .testTarget(
             name: "SwiftBacktraceTests",
-            dependencies: ["SwiftBacktrace"]),
+            dependencies: ["SwiftBacktrace"])
     ]
 )

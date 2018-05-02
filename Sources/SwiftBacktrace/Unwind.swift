@@ -46,13 +46,13 @@ class CallStackSymbols: Sequence, IteratorProtocol {
     }
 
     func address() -> UnsafeRawPointer? {
-        var pc = unw_word_t()
+        var addressNumber = unw_word_t()
 #if os(macOS)
-        _ = unw_get_reg(cursor, unw_regnum_t(UNW_REG_IP), &pc)
+        _ = unw_get_reg(cursor, unw_regnum_t(UNW_REG_IP), &addressNumber)
 #elseif os(Linux)
-        _ = unw_get_reg(cursor, unw_regnum_t(UNW_TDEP_IP.rawValue), &pc)
+        _ = unw_get_reg(cursor, unw_regnum_t(UNW_TDEP_IP.rawValue), &addressNumber)
 #endif
-        return UnsafeRawPointer(bitPattern: UInt(pc))
+        return UnsafeRawPointer(bitPattern: UInt(addressNumber))
     }
 
     func nameAndOffset() -> (name: String, offset: UInt64) {
@@ -72,6 +72,8 @@ class CallStackSymbols: Sequence, IteratorProtocol {
     }
 }
 
+// swiftlint:disable identifier_name
+
 // MARK: - Dynamic loading `libunwind`
 
 #if os(macOS)
@@ -79,10 +81,6 @@ let libunwind = Loader(searchPaths: ["/usr/lib/system"]).load(path: "libunwind.d
 #elseif os(Linux)
 let libunwind = Loader(searchPaths: []).load(path: "libunwind.so.8")
 #endif
-
-func load<T>(symbol: String) -> T {
-    return libunwind.load(symbols: ["unw"+symbol,])
-}
 
 #if arch(x86_64)
 let UNW_TARGET = "x86_64"

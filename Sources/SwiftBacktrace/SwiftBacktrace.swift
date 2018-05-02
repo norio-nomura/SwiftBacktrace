@@ -50,4 +50,3 @@ func swiftDemangleName(_ mangledName: String) -> String {
         return String(cString: demangled)
     } ?? mangledName
 }
-

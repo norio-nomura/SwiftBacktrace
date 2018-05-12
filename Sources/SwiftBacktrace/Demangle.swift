@@ -50,6 +50,7 @@ let libswiftDemangle = Loader(searchPaths: searchPaths).load(path: "libswiftDema
 let libswiftDemangle = Loader(searchPaths: []).load(path: "libswiftDemangle.so")
 #endif
 
+// swiftlint:disable:next identifier_name
 let swift_demangle_getSimplifiedDemangledName: @convention(c) (
     _ MangledName: UnsafePointer<Int8>?,
     _ OutputBuffer: UnsafeMutablePointer<Int8>?,

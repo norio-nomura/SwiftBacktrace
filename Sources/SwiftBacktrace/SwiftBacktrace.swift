@@ -14,9 +14,7 @@ public func backtrace(_ maxSize: Int = 32) -> [String] {
 
 public func demangledBacktrace(_ maxSize: Int = 32) -> [String] {
 #if os(macOS)
-    let symbols = callStackSymbols(maxSize, transform: demangle).map(darwinStyleFormat)
-    let countStringLength = max(String(symbols.count).count + 1, 4)
-    return symbols.enumerated().map { String($0.offset).ljust(countStringLength) + $0.element }
+    return prefixNumber(to: callStackSymbols(maxSize, transform: demangle).map(darwinStyleFormat))
 #elseif os(Linux)
     return callStackSymbols(maxSize, transform: demangle).map(linuxStyleFormat)
 #endif
@@ -25,9 +23,7 @@ public func demangledBacktrace(_ maxSize: Int = 32) -> [String] {
 #if os(macOS) || (os(Linux) && swift(>=4.1))
 public func simplifiedDemangledBacktrace(_ maxSize: Int = 32) -> [String] {
 #if os(macOS)
-    let symbols = callStackSymbols(maxSize, transform: simplifiedDemangle).map(darwinStyleFormat)
-    let countStringLength = max(String(symbols.count).count + 1, 4)
-    return symbols.enumerated().map { String($0.offset).ljust(countStringLength) + $0.element }
+    return prefixNumber(to: callStackSymbols(maxSize, transform: simplifiedDemangle).map(darwinStyleFormat))
 #elseif os(Linux)
     return callStackSymbols(maxSize, transform: simplifiedDemangle).map(linuxStyleFormat)
 #endif
@@ -46,6 +42,11 @@ func linuxStyleFormat(_ symbol: Symbol) -> String {
         return "0x" + .init(int, radix: 16, uppercase: false)
     }
     return "\(module)(\(name)+\(hex(offset))) [\(hex(UInt(address?.hashValue ?? 0)))]"
+}
+
+func prefixNumber(to lines: [String]) -> [String] {
+    let countStringLength = max(String(lines.count).count + 1, 4)
+    return lines.enumerated().map { String($0.offset).ljust(countStringLength) + $0.element }
 }
 
 func demangle(_ symbol: Symbol) -> Symbol {

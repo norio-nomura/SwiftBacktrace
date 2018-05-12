@@ -22,6 +22,18 @@ public func demangledBacktrace(_ maxSize: Int = 32) -> [String] {
 #endif
 }
 
+#if os(macOS) || (os(Linux) && swift(>=4.1))
+public func simplifiedDemangledBacktrace(_ maxSize: Int = 32) -> [String] {
+#if os(macOS)
+    let symbols = callStackSymbols(maxSize, transform: simplifiedDemangle).map(darwinStyleFormat)
+    let countStringLength = max(String(symbols.count).count + 1, 4)
+    return symbols.enumerated().map { String($0.offset).ljust(countStringLength) + $0.element }
+#elseif os(Linux)
+    return callStackSymbols(maxSize, transform: simplifiedDemangle).map(linuxStyleFormat)
+#endif
+}
+#endif // os(macOS) || (os(Linux) && swift(>=4.1))
+
 func darwinStyleFormat(_ symbol: Symbol) -> String {
     let (module, name, offset, address) = symbol
     let basename = URL(fileURLWithPath: module).lastPathComponent.ljust(35)
@@ -42,11 +54,10 @@ func demangle(_ symbol: Symbol) -> Symbol {
     return symbol
 }
 
-func swiftDemangleName(_ mangledName: String) -> String {
-    let utf8CString = mangledName.utf8CString
-    return utf8CString.withUnsafeBufferPointer { buffer in
-        guard let demangled = swift_demangle(buffer.baseAddress!, buffer.count - 1, nil, nil, 0) else { return nil }
-        defer { free(demangled) }
-        return String(cString: demangled)
-    } ?? mangledName
+#if os(macOS) || (os(Linux) && swift(>=4.1))
+func simplifiedDemangle(_ symbol: Symbol) -> Symbol {
+    var symbol = symbol
+    symbol.name = swiftSimplifiedDemangleName(symbol.name)
+    return symbol
 }
+#endif // os(macOS) || (os(Linux) && swift(>=4.1))

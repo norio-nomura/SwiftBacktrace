@@ -41,7 +41,7 @@ func linuxStyleFormat(_ symbol: Symbol) -> String {
     func hex<T: FixedWidthInteger & UnsignedInteger>(_ int: T) -> String {
         return "0x" + .init(int, radix: 16, uppercase: false)
     }
-    return "\(module)(\(name)+\(hex(offset))) [\(hex(UInt(address?.hashValue ?? 0)))]"
+    return "\(module)(\(name)+\(hex(offset))) [\(address?.debugDescription ?? "0x0")]"
 }
 
 func prefixNumber(to lines: [String]) -> [String] {

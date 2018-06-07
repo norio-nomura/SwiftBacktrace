@@ -18,7 +18,15 @@ final class SwiftBacktraceTests: XCTestCase {
     #endif // os(macOS) || (os(Linux) && swift(>=4.1))
     }
 
+    func test_handleSignal() {
+        handle(signal: SIGABRT) {
+            print(demangledBacktrace().joined(separator: "\n") + "\nsignal: \($0)")
+        }
+        raise(SIGABRT)
+    }
+
     static var allTests = [
-        ("test_backtrace", test_backtrace)
+        ("test_backtrace", test_backtrace),
+        ("test_handleSignal", test_handleSignal)
     ]
 }

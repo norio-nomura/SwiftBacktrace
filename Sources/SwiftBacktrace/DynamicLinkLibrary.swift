@@ -1,10 +1,3 @@
-//
-//  DynamicLinkLibrary.swift
-//  SwiftBacktrace
-//
-//  Created by Norio Nomura on 5/1/18.
-//
-
 import Foundation
 
 struct DynamicLinkLibrary {

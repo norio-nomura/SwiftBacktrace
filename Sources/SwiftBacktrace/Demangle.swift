@@ -1,10 +1,3 @@
-//
-//  Demangle.swift
-//  SwiftBacktrace
-//
-//  Created by Norio Nomura on 5/12/18.
-//
-
 import CSwiftBacktrace
 import Foundation
 

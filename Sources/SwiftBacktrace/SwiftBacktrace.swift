@@ -13,8 +13,7 @@ public func demangledBacktrace(_ maxSize: Int = 32) -> [String] {
 
 #if os(macOS) || (os(Linux) && swift(>=4.1))
 public func simplifiedDemangledBacktrace(_ maxSize: Int = 32) -> [String] {
-    let formatter = BacktraceFormatter(SymbolFormatter.defaultStyle.compose(.simplified))
-    return backtrace(maxSize, formatter: formatter)
+    return backtrace(maxSize, formatter: .simplifiedDemangled)
 }
 #endif // os(macOS) || (os(Linux) && swift(>=4.1))
 
@@ -87,18 +86,13 @@ extension Converter where Input == Symbol, Output == Symbol {
 public typealias SymbolFormatter = Converter<Symbol, String>
 
 extension Converter where Input == Symbol, Output == String {
-#if swift(>=4.1)
-    public static let `default` = SymbolFormatter.defaultStyle.compose(.default)
-    public static let demangledDefault = SymbolFormatter.defaultStyle.compose(.demangle)
-    public static let simplifiedDemangledDefault = SymbolFormatter.defaultStyle.compose(.simplified)
-#else
-    // Swift 4.0.3 or earlier can't infer types
-    public static let `default`: SymbolFormatter = SymbolFormatter.defaultStyle.compose(Demangler.default)
-    public static let demangledDefault = SymbolFormatter.defaultStyle.compose(Demangler.demangle)
-#if os(macOS)
-    public static let simplifiedDemangledDefault = SymbolFormatter.defaultStyle.compose(Demangler.simplified)
-#endif // os(macOS)
-#endif // swift(>=4.1)
+    // Swift 4.0.3 or earlier can't infer types of `default` without type annotation
+    public static let `default`: SymbolFormatter = defaultStyle.compose(.default)
+
+    public static let demangledDefault = defaultStyle.compose(.demangle)
+#if os(macOS) || (os(Linux) && swift(>=4.1))
+    public static let simplifiedDemangledDefault = defaultStyle.compose(.simplified)
+#endif // os(macOS) || (os(Linux) && swift(>=4.1))
 
 #if os(macOS)
     public static let defaultStyle = darwinStyleFormat

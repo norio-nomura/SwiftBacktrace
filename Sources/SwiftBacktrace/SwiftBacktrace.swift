@@ -117,6 +117,7 @@ precedencegroup CompositionPrecedence {
     higherThan: TernaryPrecedence
 }
 
+// swiftlint:disable identifier_name
 private func ∘<T, U, V>(g: @escaping (U) -> V, f: @escaping (T) -> U) -> ((T) -> V) {
     return { g(f($0)) }
 }

@@ -1,10 +1,3 @@
-//
-//  shim.swift
-//  SwiftBacktrace
-//
-//  Created by Norio Nomura on 5/1/18.
-//
-
 #if !swift(>=4.1)
 
 extension Sequence {

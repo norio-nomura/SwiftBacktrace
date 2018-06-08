@@ -1,10 +1,3 @@
-//
-//  sigaction.swift
-//  SwiftBacktrace
-//
-//  Created by Norio Nomura on 6/6/18.
-//
-
 import Foundation
 
 extension sigaction {

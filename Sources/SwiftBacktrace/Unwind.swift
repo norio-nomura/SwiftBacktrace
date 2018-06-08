@@ -1,10 +1,3 @@
-//
-//  Unwind.swift
-//  SwiftBacktrace
-//
-//  Created by 野村 憲男 on 5/1/18.
-//
-
 import Clibunwind
 import CSwiftBacktrace
 

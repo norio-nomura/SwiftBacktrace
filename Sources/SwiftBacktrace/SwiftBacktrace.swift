@@ -4,17 +4,16 @@ import CSwiftBacktrace
 
 /// Produce backtrace
 public func backtrace(_ maxSize: Int = 32, formatter: BacktraceFormatter = BacktraceFormatter()) -> [String] {
-    return formatter.postProcessor(callStackSymbols(maxSize, transform: formatter.symbolFormatter))
+    return formatter.postProcessor.handler(callStackSymbols(maxSize, transform: formatter.symbolFormatter.handler))
 }
 
 public func demangledBacktrace(_ maxSize: Int = 32) -> [String] {
-    let formatter = BacktraceFormatter(BacktraceFormatter.defaultStyler ∘ BacktraceFormatter.demangle)
-    return backtrace(maxSize, formatter: formatter)
+    return backtrace(maxSize, formatter: .demangled)
 }
 
 #if os(macOS) || (os(Linux) && swift(>=4.1))
 public func simplifiedDemangledBacktrace(_ maxSize: Int = 32) -> [String] {
-    let formatter = BacktraceFormatter(BacktraceFormatter.defaultStyler ∘ BacktraceFormatter.simplifiedDemangle)
+    let formatter = BacktraceFormatter(SymbolFormatter.defaultStyle.compose(.simplified))
     return backtrace(maxSize, formatter: formatter)
 }
 #endif // os(macOS) || (os(Linux) && swift(>=4.1))
@@ -25,28 +24,46 @@ public struct BacktraceFormatter {
     let symbolFormatter: SymbolFormatter
     let postProcessor: PostProcessor
 
-    public init(_ symbolFormatter: @escaping SymbolFormatter = defaultSymbolFormatter,
-                _ postProcessor: @escaping PostProcessor = defaultPostProcessor) {
+    public init(_ symbolFormatter: SymbolFormatter = .default, _ postProcessor: PostProcessor = .default) {
         self.symbolFormatter = symbolFormatter
         self.postProcessor = postProcessor
     }
 
     // MARK: - Predefined formatter
-    public static let fullyDemangledFormatter = BacktraceFormatter(BacktraceFormatter.defaultStyler ∘ BacktraceFormatter.demangle)
+    public static let demangled = BacktraceFormatter(SymbolFormatter.defaultStyle.compose(.demangle))
+    public static let simplifiedDemangled = BacktraceFormatter(SymbolFormatter.defaultStyle.compose(.simplified))
 
-    // MARK: - Demangler
+}
 
-    /// Demangler = (Symbol) -> Symbol
-    public typealias Demangler = (Symbol) -> Symbol
+// MARK: - Compose functions.
 
+public struct Converter<T, U> {
+    public typealias Handler = (T) -> U
+    let handler: Handler
+
+    public init(_ handler: @escaping Handler) {
+        self.handler = handler
+    }
+
+    public func compose<V>(_ other: Converter<V, T>) -> Converter<V, U> {
+        return .init { self.handler(other.handler($0)) }
+    }
+}
+
+// MARK: - Demangler
+
+/// Demangler = (Symbol) -> Symbol
+public typealias Demangler = Converter<Symbol, Symbol>
+
+extension Converter where T == Symbol, U == Symbol {
 #if os(macOS) || (os(Linux) && swift(>=4.1))
-    public static let defaultDemangler: Demangler = simplifiedDemangle
+    public static let `default` = simplified
 #else
-    public static let defaultDemangler: Demangler = demangle
+    public static let `default` = demangle
 #endif
 
     /// Demangle `Symbol.name` as Swift function names.
-    public static func demangle(_ symbol: Symbol) -> Symbol {
+    public static let demangle = Converter { symbol -> Symbol in
         var symbol = symbol
         symbol.name = swiftDemangleName(symbol.name)
         return symbol
@@ -55,69 +72,60 @@ public struct BacktraceFormatter {
 #if os(macOS) || (os(Linux) && swift(>=4.1))
     /// Demangle `Symbol.name` as Swift function names with module names and implicit self
     /// and metatype type names in function signatures stripped.
-    public static func simplifiedDemangle(_ symbol: Symbol) -> Symbol {
+    public static let simplified = Converter { symbol -> Symbol in
         var symbol = symbol
         symbol.name = swiftSimplifiedDemangleName(symbol.name)
         return symbol
     }
 #endif // os(macOS) || (os(Linux) && swift(>=4.1))
+}
 
-    // MARK: - SymbolFormatter
+// MARK: - SymbolFormatter
 
-    /// Convert `Symbol` to `String`
-    public typealias SymbolFormatter = (Symbol) -> String
+/// Convert `Symbol` to `String`
+public typealias SymbolFormatter = Converter<Symbol, String>
 
-    public static let defaultSymbolFormatter: SymbolFormatter = defaultStyler ∘ defaultDemangler
+extension Converter where T == Symbol, U == String {
+    public static let `default` = SymbolFormatter.defaultStyle.compose(.default)
 
 #if os(macOS)
-    public static let defaultStyler: SymbolFormatter = darwinStyleFormat
+    public static let defaultStyle = darwinStyleFormat
 #elseif os(Linux)
-    public static let defaultStyler: SymbolFormatter = linuxStyleFormat
+    public static let defaultStyle = linuxStyleFormat
 #endif
 
     /// Format `Symbol` into darwin style backtrace
-    public static func darwinStyleFormat(_ symbol: Symbol) -> String {
+    public static let darwinStyleFormat = Converter { symbol -> String in
         let (module, name, offset, address) = symbol
         let basename = URL(fileURLWithPath: module).lastPathComponent.ljust(35)
         return "\(basename) \(address?.debugDescription ?? "") \(name) + \(offset)"
     }
 
     /// Format `Symbol` into linux style backtrace
-    public static func linuxStyleFormat(_ symbol: Symbol) -> String {
+    public static let linuxStyleFormat = Converter { symbol -> String in
         let (module, name, offset, address) = symbol
         func hex<T: FixedWidthInteger & UnsignedInteger>(_ int: T) -> String {
             return "0x" + .init(int, radix: 16, uppercase: false)
         }
         return "\(module)(\(name)+\(hex(offset))) [\(address?.debugDescription ?? "0x0")]"
     }
+}
 
-    // MARK: - PostProcessor
+// MARK: - PostProcessor
 
-    /// Convert `[String]` to `[String]`
-    public typealias PostProcessor = ([String]) -> [String]
+/// Convert `[String]` to `[String]`
+public typealias PostProcessor = Converter<[String], [String]>
 
+extension Converter where T == [String], U == [String] {
 #if os(macOS)
-    public static let defaultPostProcessor: PostProcessor = prefixNumber
+    public static let `default` = prefixNumber
 #elseif os(Linux)
-    public static let defaultPostProcessor: PostProcessor = { $0 }
+    public static let `default` = Converter { $0 }
 #endif
 
     /// Prefix line number to each lines in `[String]`
-    public static func prefixNumber(to lines: [String]) -> [String] {
+    public static let prefixNumber = Converter { lines -> [String] in
         let countStringLength = max(String(lines.count).count + 1, 4)
         return lines.enumerated().map { String($0.offset).ljust(countStringLength) + $0.element }
     }
-}
-
-// MARK: - Compose functions.
-infix operator ∘ : CompositionPrecedence
-
-precedencegroup CompositionPrecedence {
-    associativity: left
-    higherThan: TernaryPrecedence
-}
-
-// swiftlint:disable identifier_name
-private func ∘<T, U, V>(g: @escaping (U) -> V, f: @escaping (T) -> U) -> ((T) -> V) {
-    return { g(f($0)) }
 }

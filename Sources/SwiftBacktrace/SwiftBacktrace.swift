@@ -38,15 +38,15 @@ public struct BacktraceFormatter {
 
 // MARK: - Converter
 
-public struct Converter<T, U> {
-    public typealias Handler = (T) -> U
+public struct Converter<Input, Output> {
+    public typealias Handler = (Input) -> Output
     let handler: Handler
 
     public init(_ handler: @escaping Handler) {
         self.handler = handler
     }
 
-    public func compose<V>(_ other: Converter<V, T>) -> Converter<V, U> {
+    public func compose<V>(_ other: Converter<V, Input>) -> Converter<V, Output> {
         return .init { self.handler(other.handler($0)) }
     }
 }
@@ -56,7 +56,7 @@ public struct Converter<T, U> {
 /// Demangler = (Symbol) -> Symbol
 public typealias Demangler = Converter<Symbol, Symbol>
 
-extension Converter where T == Symbol, U == Symbol {
+extension Converter where Input == Symbol, Output == Symbol {
 #if os(macOS) || (os(Linux) && swift(>=4.1))
     public static let `default` = simplified
 #else
@@ -86,7 +86,7 @@ extension Converter where T == Symbol, U == Symbol {
 /// Convert `Symbol` to `String`
 public typealias SymbolFormatter = Converter<Symbol, String>
 
-extension Converter where T == Symbol, U == String {
+extension Converter where Input == Symbol, Output == String {
 #if swift(>=4.1)
     public static let `default` = SymbolFormatter.defaultStyle.compose(.default)
     public static let demangledDefault = SymbolFormatter.defaultStyle.compose(.demangle)
@@ -128,7 +128,7 @@ extension Converter where T == Symbol, U == String {
 /// Convert `[String]` to `[String]`
 public typealias PostProcessor = Converter<[String], [String]>
 
-extension Converter where T == [String], U == [String] {
+extension Converter where Input == [String], Output == [String] {
 #if os(macOS)
     public static let `default` = prefixNumber
 #elseif os(Linux)

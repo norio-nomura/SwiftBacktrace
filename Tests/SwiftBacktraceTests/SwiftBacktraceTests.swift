@@ -20,7 +20,7 @@ final class SwiftBacktraceTests: XCTestCase {
 
     func test_handleSignal() {
         handle(signal: SIGABRT) {
-            print(demangledBacktrace().joined(separator: "\n") + "\nsignal: \($0)")
+            print(backtrace().joined(separator: "\n") + "\nsignal: \($0)")
         }
         raise(SIGABRT)
     }

@@ -30,12 +30,13 @@ public struct BacktraceFormatter {
     }
 
     // MARK: - Predefined formatter
-    public static let demangled = BacktraceFormatter(SymbolFormatter.defaultStyle.compose(.demangle))
-    public static let simplifiedDemangled = BacktraceFormatter(SymbolFormatter.defaultStyle.compose(.simplified))
-
+    public static let demangled = BacktraceFormatter(.demangledDefault)
+#if os(macOS) || (os(Linux) && swift(>=4.1))
+    public static let simplifiedDemangled = BacktraceFormatter(.simplifiedDemangledDefault)
+#endif // os(macOS) || (os(Linux) && swift(>=4.1))
 }
 
-// MARK: - Compose functions.
+// MARK: - Converter
 
 public struct Converter<T, U> {
     public typealias Handler = (T) -> U
@@ -86,7 +87,18 @@ extension Converter where T == Symbol, U == Symbol {
 public typealias SymbolFormatter = Converter<Symbol, String>
 
 extension Converter where T == Symbol, U == String {
+#if swift(>=4.1)
     public static let `default` = SymbolFormatter.defaultStyle.compose(.default)
+    public static let demangledDefault = SymbolFormatter.defaultStyle.compose(.demangle)
+    public static let simplifiedDemangledDefault = SymbolFormatter.defaultStyle.compose(.simplified)
+#else
+    // Swift 4.0.3 or earlier can't infer types
+    public static let `default`: SymbolFormatter = SymbolFormatter.defaultStyle.compose(Demangler.default)
+    public static let demangledDefault = SymbolFormatter.defaultStyle.compose(Demangler.demangle)
+#if os(macOS)
+    public static let simplifiedDemangledDefault = SymbolFormatter.defaultStyle.compose(Demangler.simplified)
+#endif // os(macOS)
+#endif // swift(>=4.1)
 
 #if os(macOS)
     public static let defaultStyle = darwinStyleFormat

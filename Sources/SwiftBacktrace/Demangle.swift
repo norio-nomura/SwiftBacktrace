@@ -1,6 +1,15 @@
 import CSwiftBacktrace
 import Foundation
 
+public func cxxDemangleName(_ mangledName: String) -> String {
+    let utf8CString = mangledName.utf8CString
+    return utf8CString.withUnsafeBufferPointer { buffer in
+        guard let demangled = cxx_demangle(buffer.baseAddress!, nil, nil, nil) else { return nil }
+        defer { free(demangled) }
+        return String(cString: demangled)
+        } ?? mangledName
+}
+
 public func swiftDemangleName(_ mangledName: String) -> String {
     let utf8CString = mangledName.utf8CString
     return utf8CString.withUnsafeBufferPointer { buffer in

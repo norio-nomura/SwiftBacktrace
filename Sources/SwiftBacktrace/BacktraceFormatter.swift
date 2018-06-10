@@ -40,10 +40,17 @@ public typealias Demangler = Converter<Symbol, Symbol>
 
 extension Converter where Input == Symbol, Output == Symbol {
 #if os(macOS) || (os(Linux) && swift(>=4.1))
-    public static let `default` = simplified
+    public static let `default` = simplified.compose(cxxDemangle)
 #else
-    public static let `default` = demangle
+    public static let `default` = demangle.compose(cxxDemangle)
 #endif
+
+    /// Demangle `Symbol.name` as C++ function names.
+    public static let cxxDemangle = Converter { symbol -> Symbol in
+        var symbol = symbol
+        symbol.name = cxxDemangleName(symbol.name)
+        return symbol
+    }
 
     /// Demangle `Symbol.name` as Swift function names.
     public static let demangle = Converter { symbol -> Symbol in

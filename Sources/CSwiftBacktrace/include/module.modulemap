@@ -1,5 +1,6 @@
 module CSwiftBacktrace {
   umbrella "."
+  link "stdc++"
   link "swiftCore"
   module * { export * }
 }

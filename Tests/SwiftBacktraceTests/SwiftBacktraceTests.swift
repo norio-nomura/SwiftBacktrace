@@ -18,6 +18,11 @@ final class SwiftBacktraceTests: XCTestCase {
     #endif // os(macOS) || (os(Linux) && swift(>=4.1))
     }
 
+    func test_cxxDemangle() {
+        XCTAssertEqual(cxxDemangleName("_ZN10sourcekitd13handleRequestEPvSt8functionIFvS0_EE"),
+                       "sourcekitd::handleRequest(void*, std::function<void (void*)>)")
+    }
+
     func test_handleSignal() {
         handle(signal: SIGABRT) {
             print(backtrace().joined(separator: "\n") + "\nsignal: \($0)")
@@ -27,6 +32,7 @@ final class SwiftBacktraceTests: XCTestCase {
 
     static var allTests = [
         ("test_backtrace", test_backtrace),
+        ("test_cxxDemangle", test_cxxDemangle),
         ("test_handleSignal", test_handleSignal)
     ]
 }

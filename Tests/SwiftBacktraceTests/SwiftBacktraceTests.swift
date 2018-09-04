@@ -23,16 +23,14 @@ final class SwiftBacktraceTests: XCTestCase {
                        "sourcekitd::handleRequest(void*, std::function<void (void*)>)")
     }
 
-    func test_handleSignal() {
-        handle(signal: SIGABRT) {
-            print(backtrace().joined(separator: "\n") + "\nsignal: \($0)")
-        }
+    func test_enablePrettyStackTrace() {
+        enablePrettyStackTrace()
         raise(SIGABRT)
     }
 
     static var allTests = [
         ("test_backtrace", test_backtrace),
         ("test_cxxDemangle", test_cxxDemangle),
-        ("test_handleSignal", test_handleSignal)
+        ("test_enablePrettyStackTrace", test_enablePrettyStackTrace)
     ]
 }

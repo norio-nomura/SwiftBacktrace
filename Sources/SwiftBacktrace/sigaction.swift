@@ -1,6 +1,8 @@
 import Dispatch
 import Foundation
 
+// swiftlint:disable identifier_name todo
+
 // MARK: - enablePrettyStackTrace
 
 let _enablePrettyStackTrace: Void = {
@@ -102,7 +104,8 @@ private func registerHandlers() {
         createAltStack()
 
         (intSignals + killSignals).forEach { signal in
-            var newAction = sigaction(signalHandler, Int32(SA_NODEFER) | Int32(bitPattern: UInt32(SA_RESETHAND)) | Int32(SA_ONSTACK))
+            let sa_flags = Int32(SA_NODEFER) | Int32(bitPattern: UInt32(SA_RESETHAND)) | Int32(SA_ONSTACK)
+            var newAction = sigaction(signalHandler, sa_flags)
             var signalInfo = SignalInfo(signal)
             // Install the new handler, save the old one in RegisteredSignalInfo.
             sigaction(signal, &newAction, &signalInfo.oldAction)
@@ -136,7 +139,7 @@ private func signalHandler(signal: Int32) {
 
     if intSignals.contains(signal) {
         // FIXME: Support Interrupt Function
-        
+
         raise(signal)   // Execute the default handler.
         return
     }

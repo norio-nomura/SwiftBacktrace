@@ -4,7 +4,7 @@ aliases:
     - run: apt-get update && apt-get install -y libunwind8
     - run: swift test
     - run: mkdir -p build/reports/
-    - run: swiftlint lint --strict --reporter junit > build/reports/junit.xml
+    - run: swiftlint lint --reporter junit > build/reports/junit.xml
     - store_test_results:
         path: build/reports/
 

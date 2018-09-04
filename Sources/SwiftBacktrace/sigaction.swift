@@ -81,11 +81,6 @@ extension sigaction {
     }
 }
 
-public func handle(signal: Int32, action: @escaping @convention(c) (Int32) -> Void) {
-    var action = sigaction(action)
-    sigaction(signal, &action, nil)
-}
-
 private struct SignalInfo {
     var oldAction = sigaction()
     var signal: Int32

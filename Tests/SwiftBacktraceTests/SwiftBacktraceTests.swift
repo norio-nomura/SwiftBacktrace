@@ -28,9 +28,18 @@ final class SwiftBacktraceTests: XCTestCase {
         raise(SIGABRT)
     }
 
+    func test_setInterruptFunction() {
+        setInterruptFunction { _ in
+            print("interrupted")
+        }
+        // we can't test interrupt function yet.
+//        raise(SIGTERM)
+    }
+
     static var allTests = [
         ("test_backtrace", test_backtrace),
         ("test_cxxDemangle", test_cxxDemangle),
-        ("test_enablePrettyStackTrace", test_enablePrettyStackTrace)
+        ("test_enablePrettyStackTrace", test_enablePrettyStackTrace),
+        ("test_setInterruptFunction", test_setInterruptFunction)
     ]
 }

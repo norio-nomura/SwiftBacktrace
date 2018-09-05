@@ -1,7 +1,7 @@
 import Dispatch
 import Foundation
 
-// swiftlint:disable identifier_name todo
+// swiftlint:disable identifier_name
 
 // MARK: - enablePrettyStackTrace
 
@@ -138,8 +138,9 @@ private func signalHandler(signal: Int32) {
     sigprocmask(SIG_UNBLOCK, &sigMask, nil)
 
     if intSignals.contains(signal) {
-        // FIXME: Support Interrupt Function
-
+        if let oldInterruptFunction = removeInterruptFunction() {
+            oldInterruptFunction(signal)
+        }
         raise(signal)   // Execute the default handler.
         return
     }
@@ -204,4 +205,28 @@ private func insertSignalHandler(_ callback: @escaping () -> Void) {
         return
     }
     fatalError("too many signal callbacks already registered")
+}
+
+//// Interrupt Function
+public typealias InterruptFunction = @convention(c) (Int32) -> Void
+var interruptFunctionPtr = _stdlib_AtomicInt(0)
+
+extension _stdlib_AtomicInt {
+    func exchange(desired: Int) -> Int {
+        var expected: Int
+        repeat {
+            expected = load()
+        } while !compareExchange(expected: &expected, desired: desired)
+        return expected
+    }
+}
+
+public func setInterruptFunction(_ desired: InterruptFunction?) {
+    interruptFunctionPtr.store(unsafeBitCast(desired, to: Int.self))
+    registerHandlers()
+}
+
+func removeInterruptFunction() -> InterruptFunction? {
+    let result = interruptFunctionPtr.exchange(desired: 0)
+    return unsafeBitCast(result, to: InterruptFunction?.self)
 }

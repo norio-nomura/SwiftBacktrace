@@ -1,7 +1,7 @@
 import Dispatch
 import Foundation
 
-// swiftlint:disable identifier_name todo
+// swiftlint:disable identifier_name
 
 // MARK: - enablePrettyStackTrace
 

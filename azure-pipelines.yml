@@ -1,0 +1,44 @@
+resources:
+  containers:
+  - container: '4.0.3'
+    image: norionomura/swiftlint:swift-4.0.3
+  - container: '4.1.3'
+    image: norionomura/swiftlint:swift-4.1.3
+  - container: '4.2.0'
+    image: norionomura/swiftlint:swift-4.2.0
+  - container: 'nightly'
+    image: norionomura/swift:nightly
+
+jobs:
+- job: linux
+  pool:
+    vmImage: 'Ubuntu 16.04'
+  strategy:
+    maxParallel: 10
+    matrix:
+      swift403:
+        containerResource: '4.0.3'
+      swift413:
+        containerResource: '4.1.3'
+      swift42:
+        containerResource: '4.2.0'
+      nightly:
+        containerResource: 'nightly'
+        swiftlint: 'false'
+  container: $[ variables['containerResource'] ]
+  steps:
+    - script: apt-get update && apt-get install -y libunwind8
+      displayName: install libunwind8
+    - script: swift test
+      displayName: swift test
+    - script: |
+        set -o pipefail
+        mkdir -p build/reports/
+        swiftlint lint --strict --reporter junit > build/reports/swiftlint.xml
+      displayName: swiftlint
+      condition: ne(variables['swiftlint'], 'false')
+    - task: PublishTestResults@2
+      inputs:
+        testRunner: JUnit
+        testResultsFiles: build/reports/**
+      condition: ne(variables['swiftlint'], 'false')

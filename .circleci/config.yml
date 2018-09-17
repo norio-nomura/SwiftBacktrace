@@ -20,15 +20,15 @@ jobs:
       - image: norionomura/swiftlint:swift-4.0.3
     steps: *steps-for-linux
 
-  linux_swift_4.1:
+  linux_swift_4.1.3:
     docker:
-      - image: norionomura/swiftlint:swift-4.1
+      - image: norionomura/swiftlint:swift-4.1.3
     steps: *steps-for-linux
 
-  linux_swift_4.2:
+  linux_swift_4.2.0:
     docker:
-      - image: norionomura/swift:swift-4.2-branch
-    steps: *steps-for-linux-without-swiftlint
+      - image: norionomura/swiftlint:swift-4.2.0
+    steps: *steps-for-linux
 
   linux_swift_tensorflow:
     docker:
@@ -40,6 +40,6 @@ workflows:
   workflow:
     jobs:
       - linux_swift_4.0.3
-      - linux_swift_4.1
-      - linux_swift_4.2
+      - linux_swift_4.1.3
+      - linux_swift_4.2.0
       - linux_swift_tensorflow

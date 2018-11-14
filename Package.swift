@@ -10,12 +10,15 @@ let package = Package(
             name: "SwiftBacktrace",
             targets: ["Clibunwind", "CSwiftBacktrace", "SwiftBacktrace"])
     ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-nio.git", from: "1.11.0")
+    ],
     targets: [
         .target(name: "Clibunwind"),
         .target(name: "CSwiftBacktrace"),
         .target(
             name: "SwiftBacktrace",
-            dependencies: ["Clibunwind", "CSwiftBacktrace"]),
+            dependencies: ["Clibunwind", "CSwiftBacktrace", "NIOConcurrencyHelpers"]),
         .testTarget(
             name: "SwiftBacktraceTests",
             dependencies: ["SwiftBacktrace"])

@@ -1,5 +1,6 @@
 import Dispatch
 import Foundation
+import NIOConcurrencyHelpers
 
 // swiftlint:disable identifier_name
 
@@ -159,7 +160,7 @@ public func addSignalHandler(_ callback: @escaping () -> Void) {
 
 final class Callback {
     enum State: Int { case empty, initializing, initialized, executing }
-    var state = _stdlib_AtomicInt(State.empty.rawValue)
+    var state = Atomic(value: State.empty.rawValue)
     var callback: (() -> Void)?
 
     private var _valuePtr: UnsafeMutablePointer<Int> {
@@ -172,8 +173,8 @@ final class Callback {
     }
 
     func compareExchangeState(expected: inout State, desired: State) -> Bool {
-        var expectedVar = expected.rawValue
-        let result = state.compareExchange(expected: &expectedVar, desired: desired.rawValue)
+        let expectedVar = expected.rawValue
+        let result = state.compareAndExchange(expected: expectedVar, desired: desired.rawValue)
         expected = State(rawValue: expectedVar)!
         return result
     }
@@ -209,17 +210,7 @@ private func insertSignalHandler(_ callback: @escaping () -> Void) {
 
 //// Interrupt Function
 public typealias InterruptFunction = @convention(c) (Int32) -> Void
-var interruptFunctionPtr = _stdlib_AtomicInt(0)
-
-extension _stdlib_AtomicInt {
-    func exchange(desired: Int) -> Int {
-        var expected: Int
-        repeat {
-            expected = load()
-        } while !compareExchange(expected: &expected, desired: desired)
-        return expected
-    }
-}
+var interruptFunctionPtr = Atomic(value: 0)
 
 public func setInterruptFunction(_ desired: InterruptFunction?) {
     interruptFunctionPtr.store(unsafeBitCast(desired, to: Int.self))
@@ -227,6 +218,6 @@ public func setInterruptFunction(_ desired: InterruptFunction?) {
 }
 
 func removeInterruptFunction() -> InterruptFunction? {
-    let result = interruptFunctionPtr.exchange(desired: 0)
+    let result = interruptFunctionPtr.exchange(with: 0)
     return unsafeBitCast(result, to: InterruptFunction?.self)
 }

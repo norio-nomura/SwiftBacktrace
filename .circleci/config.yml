@@ -32,8 +32,8 @@ workflows:
           image: norionomura/swiftlint:swift-4.1.3
           post-steps: [swiftlint]
       - build_with_image:
-          name: swift-4.2-RELEASE
-          image: norionomura/swiftlint:swift-4.2.0
+          name: swift-4.2.1-RELEASE
+          image: norionomura/swiftlint:swift-4.2.1
           post-steps: [swiftlint]
       - build_with_image:
           name: swift-nightly

@@ -36,6 +36,9 @@ workflows:
           image: norionomura/swiftlint:swift-4.2.1
           post-steps: [swiftlint]
       - build_with_image:
+          name: swift-5.0-branch
+          image: norionomura/swift:swift-5.0-branch
+      - build_with_image:
           name: swift-nightly
           image: norionomura/swift:nightly
       - build_with_image:

@@ -4,5 +4,5 @@ workflow "New workflow" {
 }
 
 action "swiftlint" {
-  uses = "docker://norionomura/swiftlint:swift-4.2"
+  uses = "norio-nomura/action-swiftlint@master"
 }

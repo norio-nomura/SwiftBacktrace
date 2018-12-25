@@ -5,4 +5,5 @@ workflow "New workflow" {
 
 action "swiftlint" {
   uses = "norio-nomura/action-swiftlint@master"
+  secrets = ["GITHUB_TOKEN"]
 }

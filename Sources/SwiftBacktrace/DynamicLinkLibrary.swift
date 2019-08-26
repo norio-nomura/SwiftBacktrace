@@ -15,6 +15,8 @@ struct DynamicLinkLibrary {
     }
 }
 
+var a = 1
+
 struct Loader {
     let searchPaths: [String]
 

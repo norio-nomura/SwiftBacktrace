@@ -1,6 +1,6 @@
 name: CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -10,6 +10,6 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: GitHub Action for SwiftLint
-      uses: norio-nomura/action-swiftlint@2.0.0
+      uses: norio-nomura/action-swiftlint@use-event-payload
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

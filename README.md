@@ -1,4 +1,6 @@
 # SwiftBacktrace
+[![SwiftPM](https://github.com/norio-nomura/SwiftBacktrace/workflows/SwiftPM/badge.svg)](https://launch-editor.github.com/actions?workflowID=SwiftPM&event=pull_request&nwo=norio-nomura%2FSwiftBacktrace)
+[![Nightly](https://github.com/norio-nomura/SwiftBacktrace/workflows/Nightly/badge.svg)](https://launch-editor.github.com/actions?workflowID=Nightly&event=pull_request&nwo=norio-nomura%2FSwiftBacktrace)
 
 Stack traces for Swift on Mac and Linux using `libunwind`.
 

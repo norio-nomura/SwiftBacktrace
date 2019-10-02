@@ -1,0 +1,16 @@
+name: Nightly
+
+on:
+  push:
+    branches: [master]
+  schedule:
+    - cron: '0 4 * * *'
+
+jobs:
+  Nightly:
+    runs-on: ubuntu-latest
+    container:
+      image: norionomura/swift:nightly
+    steps:
+      - uses: actions/checkout@v1
+      - run: swift test --parallel

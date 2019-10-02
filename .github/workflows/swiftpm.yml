@@ -31,7 +31,7 @@ jobs:
   Linux:
     strategy:
       matrix:
-        tag: ['4.0', '4.1', '4.2', '5.0', '5.1', 'nightly']
+        tag: ['4.0', '4.1', '4.2', '5.0', '5.1']
     runs-on: ubuntu-latest
     container:
       image: norionomura/swift:${{ matrix.tag }}

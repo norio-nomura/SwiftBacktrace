@@ -1,0 +1,22 @@
+name: Nightly
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    paths: 
+      - '.github/workflows/nightly.yml'
+      - 'Package*'
+      - 'Sources/**'
+      - 'Tests/**'
+  schedule:
+    - cron: '0 4 * * *'
+
+jobs:
+  Nightly:
+    runs-on: ubuntu-latest
+    container:
+      image: norionomura/swift:nightly
+    steps:
+      - uses: actions/checkout@v1
+      - run: swift test --parallel

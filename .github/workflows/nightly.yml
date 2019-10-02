@@ -3,12 +3,6 @@ name: Nightly
 on:
   push:
     branches: [master]
-  pull_request:
-    paths: 
-      - '.github/workflows/nightly.yml'
-      - 'Package*'
-      - 'Sources/**'
-      - 'Tests/**'
   schedule:
     - cron: '0 4 * * *'
 

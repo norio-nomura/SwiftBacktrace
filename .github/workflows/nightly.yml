@@ -8,6 +8,7 @@ on:
       - 'Package*'
       - 'Sources/**'
       - 'Tests/**'
+  pull_request: {}
   schedule:
     - cron: '0 4 * * *'
 

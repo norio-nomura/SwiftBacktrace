@@ -21,4 +21,4 @@ jobs:
       - run: uname -a
       - run: apt-get update && apt-get install -y libunwind8
       - uses: actions/checkout@v1
-      - run: swift test --parallel
+      - run: swift test --parallel -Xswiftc -Xfrontend -Xswiftc -disable-astscope-lookup
